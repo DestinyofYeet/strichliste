@@ -11,6 +11,6 @@ pub fn Show() -> impl IntoView {
             input=primary_user
         >
             <p class="text-white">"Hello"</p>
-        <SelectSingleUser/>
+        </SelectSingleUser>
     }
 }
