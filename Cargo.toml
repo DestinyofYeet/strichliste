@@ -20,12 +20,14 @@ itertools = {version = "0.14.0", optional = true}
 config = {version = "0.15.15", optional = true}
 rand = {version = "0.9.2", optional = true}
 thiserror = "2.0.16"
+thaw = {version = "0.5.0-beta"}
 
 [features]
 hydrate = [
   "leptos/hydrate",
   "dep:console_error_panic_hook",
-  "dep:wasm-bindgen"
+  "dep:wasm-bindgen",
+  "thaw/hydrate"
 ]
 ssr = [
   "dep:axum",
@@ -40,7 +42,8 @@ ssr = [
   "dep:futures",
   "dep:itertools",
   "dep:config",
-  "dep:rand"
+  "dep:rand",
+  "thaw/ssr"
 ]
 sqlx = ["dep:sqlx"]
 clap = ["dep:clap"]

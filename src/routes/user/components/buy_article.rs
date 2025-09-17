@@ -4,7 +4,7 @@ use leptos::{ev, html, leptos_dom::logging::console_log, prelude::*, task::spawn
 
 use crate::{
     models::{play_sound, Article, Money, Transaction, UserId},
-    routes::{articles::get_all_articles, user::MoneyArgs},
+    routes::{articles::get_all_articles, state::set_error, user::UserArgs},
 };
 
 #[cfg(feature = "ssr")]
@@ -106,48 +106,34 @@ pub fn buy_article(
     user_id: UserId,
     article_id: i64,
     money: RwSignal<Money>,
-    error: RwSignal<String>,
     transactions: RwSignal<Vec<Transaction>>,
-    audio_ref: NodeRef<leptos::html::Audio>,
 ) {
     console_log(&format!("Need to buy article with id: {article_id}"));
-    let args = MoneyArgs {
-        user_id,
-        money,
-        error,
-        transactions,
-        audio_ref,
-    };
+
     spawn_local(async move {
         match buy_article_by_id(user_id, article_id).await {
             Ok(transaction) => {
                 money.update(|money| money.value -= transaction.money.value);
                 transactions.update(|trns| trns.insert(0, transaction));
-                error.set(String::new());
-                play_sound(
-                    Rc::new(args),
-                    crate::models::AudioPlayback::Bought(article_id),
-                );
+                play_sound(crate::models::AudioPlayback::Bought(article_id));
             }
 
             Err(e) => {
-                error.set(format!("Failed to buy article: {e}"));
+                set_error(format!("Failed to buy article: {e}"));
             }
         }
     });
 }
 
 #[component]
-pub fn BuyArticle(args: Rc<MoneyArgs>) -> impl IntoView {
+pub fn BuyArticle(args: Rc<UserArgs>) -> impl IntoView {
     let m_clone = args.clone();
-    let MoneyArgs {
-        user_id,
+    let UserArgs {
         money,
-        error,
         transactions,
-        audio_ref,
+        user_id,
     } = *args;
-    let personal_articles = OnceResource::new(get_articles_per_user(user_id));
+    let personal_articles = LocalResource::new(move || get_articles_per_user(user_id.get())); //Normal Resource does not work here
     view! {
         <div>
             <Suspense fallback=move || {
@@ -187,14 +173,7 @@ pub fn BuyArticle(args: Rc<MoneyArgs>) -> impl IntoView {
                                             <button
                                                 class="bg-gray-700 rounded p-2"
                                                 on:click=move |_| {
-                                                    buy_article(
-                                                        user_id,
-                                                        id,
-                                                        money,
-                                                        error,
-                                                        transactions,
-                                                        audio_ref,
-                                                    );
+                                                    buy_article(user_id.get(), id, money, transactions);
                                                 }
                                             >
                                                 <div>{name}" | "{cost.format_eur()}</div>
@@ -213,13 +192,11 @@ pub fn BuyArticle(args: Rc<MoneyArgs>) -> impl IntoView {
 }
 
 #[component]
-pub fn ArticleSearch(money_args: Rc<MoneyArgs>) -> impl IntoView {
-    let MoneyArgs {
-        user_id,
+pub fn ArticleSearch(money_args: Rc<UserArgs>) -> impl IntoView {
+    let UserArgs {
         money,
-        error,
         transactions,
-        audio_ref,
+        user_id,
     } = *money_args;
     let articles_resource = OnceResource::new(get_all_articles(None));
 
@@ -311,14 +288,7 @@ pub fn ArticleSearch(money_args: Rc<MoneyArgs>) -> impl IntoView {
                         .map(|elem| {
                             view! {
                                 <button on:click=move |_| {
-                                    buy_article(
-                                        user_id,
-                                        elem.id,
-                                        money,
-                                        error,
-                                        transactions,
-                                        audio_ref,
-                                    );
+                                    buy_article(user_id.get(), elem.id, money, transactions);
                                     search_term.set(String::new());
                                 }>
                                     <div class="p-2 m-2 rounded text-white bg-gray-700">

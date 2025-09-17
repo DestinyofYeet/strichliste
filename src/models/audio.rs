@@ -1,8 +1,6 @@
-use std::rc::Rc;
-
 use leptos::{
     leptos_dom::logging::console_log,
-    prelude::{expect_context, GetUntracked, Set},
+    prelude::{expect_context, GetUntracked, NodeRef},
     task::spawn_local,
 };
 use reactive_stores::{Store, StoreField};
@@ -11,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     models::Money,
     routes::{
-        state::{FrontendStore, FrontendStoreStoreFields},
-        user::{get_item_sound_url, MoneyArgs},
+        state::{set_error, FrontendStore, FrontendStoreStoreFields},
+        user::get_item_sound_url,
     },
 };
 
@@ -38,11 +36,12 @@ pub enum AudioPlayback {
     let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
 */
 
-pub fn play_sound(args: Rc<MoneyArgs>, audio_playback: AudioPlayback) {
+pub fn play_sound(audio_playback: AudioPlayback) {
     use leptos::web_sys::{js_sys, Url};
     spawn_local(async move {
         let store = expect_context::<Store<FrontendStore>>();
-        let audio = match args.audio_ref.get_untracked() {
+        let audio_ref: NodeRef<leptos::html::Audio> = expect_context();
+        let audio = match audio_ref.get_untracked() {
             Some(val) => val,
             None => {
                 console_log("Failed to get audio node");
@@ -58,7 +57,7 @@ pub fn play_sound(args: Rc<MoneyArgs>, audio_playback: AudioPlayback) {
                 let sound = match get_item_sound_url(audio_playback).await {
                     Ok(value) => value,
                     Err(e) => {
-                        args.error.set(format!("Failed to fetch sound: {e}"));
+                        set_error(format!("Failed to fetch sound: {e}"));
                         return;
                     }
                 };

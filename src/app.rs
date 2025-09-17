@@ -4,24 +4,27 @@ use leptos_router::{
     components::{Route, Router, Routes},
     path,
 };
+use thaw::ssr::SSRMountStyleProvider;
 
-use crate::routes::{self, state::FrontendStore};
+use crate::routes::{self, error::ErrorDisplay, state::FrontendStore};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html>
-        <html lang="en">
-            <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <AutoReload options=options.clone() />
-                <HydrationScripts options />
-                <MetaTags />
-            </head>
-            <body class="bg-[#25333f]">
-                <App />
-            </body>
-        </html>
+        <SSRMountStyleProvider>
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <AutoReload options=options.clone() />
+                    <HydrationScripts options />
+                    <MetaTags />
+                </head>
+                <body class="bg-[#25333f]">
+                    <App />
+                </body>
+            </html>
+        </SSRMountStyleProvider>
     }
 }
 
@@ -32,6 +35,8 @@ pub fn App() -> impl IntoView {
 
     use reactive_stores::Store;
     provide_context(Store::new(FrontendStore::default()));
+    let audio_ref = NodeRef::<leptos::html::Audio>::new();
+    provide_context(audio_ref);
 
     view! {
         // injects a stylesheet into the document <head>
@@ -42,6 +47,8 @@ pub fn App() -> impl IntoView {
         <Title text="Strichliste-rs" />
 
         {routes::navbar::View()}
+        <ErrorDisplay />
+        <audio node_ref=audio_ref />
 
         // content for this welcome page
         <Router>

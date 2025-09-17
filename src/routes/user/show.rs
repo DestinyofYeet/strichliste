@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
 use leptos::{prelude::*, server_fn::error::ServerFnErrorErr, task::spawn_local};
-use leptos_router::hooks::use_params_map;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::error;
@@ -10,7 +9,10 @@ use tracing::error;
 use crate::backend::db::DBError;
 use crate::{
     models::{play_sound, AudioPlayback, Money, Transaction, TransactionType, User, UserId},
-    routes::user::components::{buy_article::BuyArticle, scan_input::invisible_scan_input},
+    routes::{
+        state::{get_user, set_error},
+        user::components::{buy_article::BuyArticle, scan_input::invisible_scan_input},
+    },
 };
 
 #[cfg(feature = "ssr")]
@@ -26,16 +28,14 @@ use {
 use super::components::transaction_view::ShowTransactions;
 
 #[derive(Debug, Clone)]
-pub struct MoneyArgs {
-    pub user_id: UserId,
+pub struct UserArgs {
+    pub user_id: ReadSignal<UserId>,
     pub money: RwSignal<Money>,
-    pub error: RwSignal<String>,
     pub transactions: RwSignal<Vec<Transaction>>,
-    pub audio_ref: NodeRef<leptos::html::Audio>,
 }
 
 #[server]
-pub async fn get_user(id: UserId) -> Result<Option<User>, ServerFnError> {
+pub async fn load_user(id: UserId) -> Result<Option<User>, ServerFnError> {
     use crate::backend::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
@@ -78,7 +78,7 @@ pub enum CreateTransactionError {
     #[error("the following users have too much money: {}", .0.join(", "))]
     TooMuchMoneyError(Vec<String>),
 
-    #[error("Failed to create transaction: {0}")]
+    #[error("{0}")]
     StringMessage(String),
 
     #[error("server fn error: {0}")]
@@ -272,26 +272,16 @@ pub async fn get_item_sound_url(audio: AudioPlayback) -> Result<Vec<u8>, ServerF
 
 #[component]
 pub fn ShowUser() -> impl IntoView {
-    let params = use_params_map();
-    let user_id_string = params.read_untracked().get("id").unwrap_or_default();
-
-    let user_id = match user_id_string.parse::<i64>() {
-        Ok(id) => UserId(id),
-        Err(e) => {
-            return view! { <p class="text-red-500">"Failed to convert id to a number: "{e.to_string()}</p> }
-            .into_any();
+    let (user_resource, set_user_resource) = signal(None);
+    Effect::new(move || {
+        if let Some(u) = get_user().get() {
+            set_user_resource.set(Some(u));
         }
-    };
-
-    let user_resource = OnceResource::new(get_user(user_id));
+    });
 
     let error_signal = RwSignal::new(String::new());
 
-    let audio_ref = NodeRef::<leptos::html::Audio>::new();
-
     view! {
-        <audio node_ref=audio_ref />
-
         {move || {
             let error = error_signal.get();
             if !error.is_empty() {
@@ -320,10 +310,7 @@ pub fn ShowUser() -> impl IntoView {
                                 let user = match user_resource.get() {
                                     Some(user) => user,
                                     None => {
-                                        return view! {
-                                            <p class="text-red-500">"Failed to fetch user"</p>
-                                        }
-                                            .into_any();
+                                        return ().into_any();
                                     }
                                 };
                                 let user = match user {
@@ -338,25 +325,13 @@ pub fn ShowUser() -> impl IntoView {
                                             .into_any();
                                     }
                                 };
-                                let user = match user {
-                                    Some(user) => user,
-                                    None => {
-                                        return view! {
-                                            <p class="text-red-500">
-                                                "No user with the id "{user_id.0}" has been found!"
-                                            </p>
-                                        }
-                                            .into_any();
-                                    }
-                                };
                                 let money_signal = RwSignal::new(user.money);
                                 let transactions = RwSignal::new(Vec::<Transaction>::new());
-                                let m_args = MoneyArgs {
-                                    user_id,
+                                let (user_id, _) = signal(user.id);
+                                let m_args = UserArgs {
                                     money: money_signal,
-                                    error: error_signal,
                                     transactions,
-                                    audio_ref,
+                                    user_id,
                                 };
                                 let args1 = m_args.clone();
                                 let args2 = m_args.clone();
@@ -397,14 +372,14 @@ pub fn ShowUser() -> impl IntoView {
                                                 <div class="col-span-1">
                                                     <div class="flex justify-evenly">
                                                         <a
-                                                            href=format!("/user/{}/settings", user_id)
+                                                            href=move || format!("/user/{}/settings", user_id.get())
                                                             class="text-white pt-[5px] flex flex-col items-center"
                                                         >
                                                             {SettingsIcon()}
                                                             <p class="text-center">"Settings"</p>
                                                         </a>
                                                         <a
-                                                            href=format!("/user/{}/send_money", user_id)
+                                                            href=move || format!("/user/{}/send_money", user_id.get())
                                                             class="text-white w-[3rem] flex flex-col items-center"
                                                         >
                                                             <svg
@@ -545,7 +520,7 @@ pub fn SettingsIcon() -> impl IntoView {
     }
 }
 
-fn change_money_button(money: i64, args: Rc<MoneyArgs>) -> impl IntoView {
+fn change_money_button(money: i64, args: Rc<UserArgs>) -> impl IntoView {
     view! {
         <a
             on:click=move |_| change_money(money.into(), args.clone())
@@ -560,7 +535,7 @@ fn change_money_button(money: i64, args: Rc<MoneyArgs>) -> impl IntoView {
 }
 
 // fn change_money_logic_raw(money: Money, user_id: UserId, money_signal: RwSignal<Money>, error_signal: RwSignal<String>, transaction_signal: RwSignal<Vec<Transaction>>){
-fn change_money(money: Money, args: Rc<MoneyArgs>) {
+fn change_money(money: Money, args: Rc<UserArgs>) {
     // this only runs in the main user view
     spawn_local(async move {
         let mut fixed_money = money;
@@ -571,23 +546,19 @@ fn change_money(money: Money, args: Rc<MoneyArgs>) {
             TransactionType::Withdraw
         };
 
-        match create_transaction(args.user_id, fixed_money, t_type).await {
+        match create_transaction(args.user_id.get_untracked(), fixed_money, t_type).await {
             Ok(transaction) => {
                 args.money
                     .update(|money_struct| money_struct.value += money.value);
-                args.error.set(String::new());
                 args.transactions.write().insert(0, transaction.clone());
-                play_sound(
-                    args.clone(),
-                    match transaction.t_type {
-                        TransactionType::Bought(id) => AudioPlayback::Bought(id),
-                        TransactionType::Deposit => AudioPlayback::Deposit(transaction.money),
-                        TransactionType::Withdraw => AudioPlayback::Withdraw(transaction.money),
-                        TransactionType::Received(_) => return,
-                        TransactionType::SentAndReceived(_) => return,
-                        TransactionType::Sent(_) => AudioPlayback::Sent(transaction.money),
-                    },
-                );
+                play_sound(match transaction.t_type {
+                    TransactionType::Bought(id) => AudioPlayback::Bought(id),
+                    TransactionType::Deposit => AudioPlayback::Deposit(transaction.money),
+                    TransactionType::Withdraw => AudioPlayback::Withdraw(transaction.money),
+                    TransactionType::Received(_) => return,
+                    TransactionType::SentAndReceived(_) => return,
+                    TransactionType::Sent(_) => AudioPlayback::Sent(transaction.money),
+                });
             }
             Err(e) => {
                 let msg = match e {
@@ -600,18 +571,15 @@ fn change_money(money: Money, args: Rc<MoneyArgs>) {
                     CreateTransactionError::StringMessage(msg) => msg,
                     CreateTransactionError::ServerFn(server_fn) => server_fn.to_string(),
                 };
-                args.error.set(msg);
-                play_sound(args.clone(), AudioPlayback::Failed);
+                set_error(msg);
+                play_sound(AudioPlayback::Failed);
             }
         };
     })
 }
 
-fn on_custom_money_button_click(add: bool, value: RwSignal<String>, args: &MoneyArgs) {
+fn on_custom_money_button_click(add: bool, value: RwSignal<String>, args: &UserArgs) {
     let string = value.get_untracked();
-
-    let error_signal = args.error;
-    error_signal.set(String::new());
 
     if string.is_empty() {
         return;
@@ -620,7 +588,7 @@ fn on_custom_money_button_click(add: bool, value: RwSignal<String>, args: &Money
     let mut money: Money = match string.try_into() {
         Ok(value) => value,
         Err(e) => {
-            error_signal.set(format!("Failed to parse money: {e}"));
+            set_error(format!("Failed to parse money: {e}"));
             return;
         }
     };

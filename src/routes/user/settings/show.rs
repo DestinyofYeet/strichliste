@@ -1,11 +1,14 @@
 use leptos::prelude::*;
-use leptos_router::hooks::use_params_map;
 
-use crate::{models::UserId, routes::user::get_user};
+use crate::{
+    models::UserId,
+    routes::state::{get_user, set_error},
+};
 
 #[cfg(feature = "ssr")]
 use {
     crate::models::User,
+    crate::routes::user::load_user,
     tracing::{debug, error, warn},
 };
 
@@ -23,7 +26,7 @@ pub async fn update_user(
 
     let response_opts: ResponseOptions = expect_context();
 
-    let user = match get_user(id).await {
+    let user = match load_user(id).await {
         Ok(user) => user,
         Err(err) => {
             error!("Failed to fetch user: {}", err.to_string());
@@ -119,18 +122,12 @@ pub async fn update_user(
 
 #[component]
 pub fn Show() -> impl IntoView {
-    let params = use_params_map();
-    let user_id_string = params.read_untracked().get("id").unwrap_or_default();
-
-    let user_id = match user_id_string.parse::<i64>() {
-        Ok(user_id) => UserId(user_id),
-        Err(_) => {
-            return view! { <p class="text-red-500">"Failed to convert id to a number!"</p> }
-                .into_any();
+    let (user_resource, set_user_resource) = signal(None);
+    Effect::new(move || {
+        if let Some(u) = get_user().get() {
+            set_user_resource.set(Some(u));
         }
-    };
-
-    let user_resource = OnceResource::new(get_user(user_id));
+    });
 
     let update_action = ServerAction::<UpdateUser>::new();
     view! {
@@ -151,17 +148,6 @@ pub fn Show() -> impl IntoView {
                         let err = err.to_string();
                         return view! {
                             <p class="text-red-500">"Failed to fetch user because: "{err}</p>
-                        }
-                            .into_any();
-                    }
-                };
-                let user = match user {
-                    Some(user) => user,
-                    None => {
-                        return view! {
-                            <p class="text-red-500">
-                                "No user with the id "{user_id.0}" has been found!"
-                            </p>
                         }
                             .into_any();
                     }
