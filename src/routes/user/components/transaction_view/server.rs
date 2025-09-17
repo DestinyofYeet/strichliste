@@ -6,7 +6,7 @@ use crate::models::{Page, PageRequestParams, Transaction, UserId};
 use {
     crate::{
         models::{Group, GroupId, Money, TransactionDB, User},
-        routes::user::get_user,
+        routes::user::load_user,
     },
     tracing::{debug, error, trace, warn},
 };
@@ -89,7 +89,7 @@ pub async fn undo_transaction(user_id: UserId, transaction_id: i64) -> Result<()
         transaction_id, user_id
     );
 
-    let user = get_user(user_id).await?;
+    let user = load_user(user_id).await?;
 
     let user = match user {
         Some(user) => user,

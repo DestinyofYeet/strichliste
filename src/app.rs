@@ -35,6 +35,8 @@ pub fn App() -> impl IntoView {
 
     use reactive_stores::Store;
     provide_context(Store::new(FrontendStore::default()));
+    let audio_ref = NodeRef::<leptos::html::Audio>::new();
+    provide_context(audio_ref);
 
     view! {
         // injects a stylesheet into the document <head>
@@ -46,6 +48,7 @@ pub fn App() -> impl IntoView {
 
         {routes::navbar::View()}
         <ErrorDisplay />
+        <audio node_ref=audio_ref />
 
         // content for this welcome page
         <Router>

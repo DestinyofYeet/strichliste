@@ -34,8 +34,6 @@ pub fn Show() -> impl IntoView {
         },
     );
 
-    let error = RwSignal::new(String::new());
-
     let money_signal = RwSignal::new(Money::default());
 
     let go_back_padding = "p-5";
@@ -83,12 +81,7 @@ pub fn Show() -> impl IntoView {
                                         .get()
                                         .iter()
                                         .map(|transaction| {
-                                            format_transaction(
-                                                transaction,
-                                                user_id,
-                                                error,
-                                                money_signal,
-                                            )
+                                            format_transaction(transaction, user_id, money_signal)
                                         })
                                         .collect_view()}
                                 }

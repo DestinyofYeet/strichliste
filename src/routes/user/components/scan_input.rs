@@ -3,14 +3,14 @@ use std::rc::Rc;
 use chrono::Utc;
 use leptos::{ev, leptos_dom::logging::console_log, prelude::*, task::spawn_local};
 
-use crate::routes::{articles::get_article_by_barcode, user::MoneyArgs};
+use crate::routes::{articles::get_article_by_barcode, user::UserArgs};
 
 use super::buy_article::buy_article;
 
 pub fn invisible_scan_input(
     is_focused_signal: RwSignal<bool>,
     error_signal: RwSignal<String>,
-    money_args: Rc<MoneyArgs>,
+    user_args: Rc<UserArgs>,
 ) -> impl IntoView {
     let input_signal = RwSignal::new(String::new());
     let last_input = RwSignal::new(Utc::now());
@@ -32,7 +32,7 @@ pub fn invisible_scan_input(
                 return;
             }
 
-            let money_args_clone = money_args.clone();
+            let money_args_clone = user_args.clone();
 
             spawn_local(async move {
                 console_log(&format!("Input {scan_input}"));
@@ -56,12 +56,10 @@ pub fn invisible_scan_input(
                     Some(value) => {
                         console_log(&format!("Need to buy article: {}", value.name));
                         buy_article(
-                            money_args_clone.user_id,
+                            money_args_clone.user_id.get(),
                             value.id,
                             money_args_clone.money,
-                            money_args_clone.error,
                             money_args_clone.transactions,
-                            money_args_clone.audio_ref,
                         );
                     }
                 }

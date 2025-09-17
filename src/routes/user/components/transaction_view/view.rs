@@ -2,44 +2,48 @@ use std::rc::Rc;
 
 use chrono::{DateTime, Local, Utc};
 use leptos::{leptos_dom::logging::console_log, prelude::*};
-use leptos_router::hooks::use_params_map;
 use leptos_use::{use_infinite_scroll_with_options, UseInfiniteScrollOptions};
 
 use crate::{
     models::{Money, PageRequestParams, PageResponseParams, Transaction, TransactionType, UserId},
-    routes::user::components::{
-        icons::{ArticleBasketIcon, LeftArrowIcon, RightArrowIcon},
-        transaction_view::{get_group_members, server::get_user_transactions, UndoTransaction},
+    routes::{
+        state::{get_user_id, set_error},
+        user::components::{
+            icons::{ArticleBasketIcon, LeftArrowIcon, RightArrowIcon},
+            transaction_view::{get_group_members, server::get_user_transactions, UndoTransaction},
+        },
     },
 };
 
-use crate::routes::user::MoneyArgs;
+use crate::routes::user::UserArgs;
 
 #[component]
-pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
-    let params = use_params_map();
-    let user_id_string = match params.read_untracked().get("id") {
-        Some(s) => s,
-        None => {
-            return view! { <p class="text-red-500">"Failed to obtain id from url"</p> }.into_any();
+pub fn ShowTransactions(arguments: Rc<UserArgs>) -> impl IntoView {
+    let (user_id, set_user_id) = signal(None);
+    Effect::new(move || match get_user_id().get() {
+        Ok(ok) => {
+            set_user_id.set(Some(ok));
         }
-    };
+        Err(e) => {
+            set_error(format!("Failed to get user! {e}"));
+        }
+    });
 
-    let user_id = match user_id_string.parse::<i64>() {
-        Ok(user_id) => UserId(user_id),
-        Err(_) => {
-            return view! { <p class="text-red-500">"Failed to convert id to a number!"</p> }
-                .into_any();
-        }
-    };
+    let transaction_data = Resource::new(
+        move || user_id.get(),
+        async |user_id| {
+            if let Some(user_id) = user_id {
+                Some(get_user_transactions(user_id, PageRequestParams::new(100)).await)
+            } else {
+                None
+            }
+        },
+    );
 
     let previous_transactions_presonse_params: RwSignal<Option<PageResponseParams>> =
         RwSignal::new(None);
-    let transaction_data =
-        OnceResource::new(get_user_transactions(user_id, PageRequestParams::new(100)));
 
     let transaction_signal = arguments.transactions;
-    let error_signal = arguments.error;
     let money_signal = arguments.money;
 
     view! {
@@ -50,17 +54,20 @@ pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
                 let transactions = match transaction_data.get() {
                     Some(transactions) => transactions,
                     None => {
-                        return view! {
-                            <p class="text-white bg-red-400 text-center">
-                                "Failed to fetch transactions"
-                            </p>
-                        }
-                            .into_any();
+                        set_error("Failed to fetch transactions");
+                        return ().into_any();
                     }
                 };
                 let mut transactions = match transactions {
-                    Ok(transactions) => transactions.items,
-                    Err(err) => {
+                    None => None,
+                    Some(Ok(transactions)) => {
+                        Some({
+                            let mut items = transactions.items;
+                            items.sort_by(|a, b| { b.timestamp.cmp(&a.timestamp) });
+                            items
+                        })
+                    }
+                    Some(Err(err)) => {
                         let msg = match err {
                             ServerFnError::ServerError(msg) => msg,
                             _ => "Failed to fetch transactions".to_string(),
@@ -73,11 +80,17 @@ pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
                             .into_any();
                     }
                 };
-                transactions.sort_by(|a, b| { b.timestamp.cmp(&a.timestamp) });
                 let el = NodeRef::<leptos::html::Div>::new();
-                transaction_signal
-                    .write()
-                    .append(&mut transactions.into_iter().collect::<Vec<Transaction>>());
+                match transactions {
+                    Some(transactions) => {
+                        transaction_signal
+                            .write()
+                            .append(&mut transactions.into_iter().collect::<Vec<Transaction>>());
+                    }
+                    None => {
+                        return view! { {Option::<String>::None} }.into_any();
+                    }
+                }
                 Effect::new(move |_| {
                     let _ = use_infinite_scroll_with_options(
                         el,
@@ -85,7 +98,8 @@ pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
                             let next_params = previous_transactions_presonse_params
                                 .with_untracked(|p| PageResponseParams::next_params(*p, 100));
                             if let Some(params) = next_params {
-                                let mut data = get_user_transactions(user_id, params).await;
+                                let mut data = get_user_transactions(user_id.get().unwrap(), params)
+                                    .await;
                                 match data {
                                     Ok(mut data) => {
                                         transaction_signal.update(|d| d.append(&mut data.items));
@@ -111,7 +125,7 @@ pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
                             )
                             let:child
                         >
-                            {format_transaction(&child, user_id, error_signal, money_signal)}
+                            {format_transaction(&child, user_id.get().unwrap(), money_signal)}
                         </For>
 
                     </div>
@@ -127,7 +141,6 @@ pub fn ShowTransactions(arguments: Rc<MoneyArgs>) -> impl IntoView {
 pub fn format_transaction(
     transaction: &Transaction,
     user_id: UserId,
-    error_write: RwSignal<String>,
     money_signal: RwSignal<Money>,
 ) -> impl IntoView {
     let now: DateTime<Utc> = Utc::now();
@@ -289,14 +302,13 @@ pub fn format_transaction(
                             undo_signal.set(true);
                             money_signal.update(|value| value.value -= money);
                             console_log("Set signal to true");
-                            error_write.set(String::new());
                         }
                         Err(e) => {
                             let msg = match e {
                                 ServerFnError::ServerError(msg) => msg,
                                 _ => e.to_string(),
                             };
-                            error_write.set(msg);
+                            set_error(msg)
                         }
                     }
                 }

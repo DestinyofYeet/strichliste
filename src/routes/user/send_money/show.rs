@@ -3,7 +3,7 @@ use leptos_router::hooks::use_params_map;
 
 use crate::{
     models::UserId,
-    routes::{home::get_all_users, user::get_user},
+    routes::{home::get_all_users, user::load_user},
 };
 
 #[cfg(feature = "ssr")]
@@ -43,7 +43,7 @@ pub async fn send_money(
         return Err(ServerFnError::new("Amount to be sent must be > 0!"));
     }
 
-    let sender = match get_user(user_id).await? {
+    let sender = match load_user(user_id).await? {
         Some(value) => value,
         None => {
             response_opts.set_status(StatusCode::BAD_REQUEST);
@@ -145,7 +145,7 @@ pub fn Show() -> impl IntoView {
 
     let user_id = UserId(user_id);
 
-    let user_resource = OnceResource::new(get_user(user_id));
+    let user_resource = OnceResource::new(load_user(user_id));
     let all_users_resource = OnceResource::new(get_all_users());
 
     let receiver_input = RwSignal::new(String::new());
