@@ -6,7 +6,7 @@ use leptos::prelude::RwSignal;
 
 #[cfg(feature = "ssr")]
 use crate::{
-    backend::Settings,
+    backend::core::Settings,
     models::{Page, PageRequestParams, User},
     routes::user::CreateTransactionError,
 };
