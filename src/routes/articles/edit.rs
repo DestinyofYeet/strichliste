@@ -9,7 +9,10 @@ use {
     tracing::{debug, error},
 };
 
-use crate::models::{Article, Barcode, BarcodeDiff};
+use crate::{
+    backend::core::Article,
+    models::{Barcode, BarcodeDiff},
+};
 
 #[server]
 pub async fn get_article(article_id: i64) -> Result<Article, ServerFnError> {

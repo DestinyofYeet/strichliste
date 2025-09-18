@@ -2,7 +2,7 @@ use leptos::prelude::*;
 #[cfg(feature = "ssr")]
 use tracing::error;
 
-use crate::models::Article;
+use crate::backend::core::Article;
 
 #[server]
 pub async fn get_article_by_barcode(barcode: String) -> Result<Option<Article>, ServerFnError> {

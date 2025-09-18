@@ -1,7 +1,6 @@
 #![recursion_limit = "256"]
 
 pub mod app;
-#[cfg(feature = "ssr")]
 pub mod backend;
 pub mod convert;
 pub mod frontend;

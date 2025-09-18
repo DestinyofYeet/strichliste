@@ -3,7 +3,8 @@ use std::rc::Rc;
 use leptos::{ev, html, leptos_dom::logging::console_log, prelude::*, task::spawn_local};
 
 use crate::{
-    models::{play_sound, Article, Money, Transaction, UserId},
+    backend::core::Article,
+    models::{play_sound, Money, Transaction, UserId},
     routes::{articles::get_all_articles, user::MoneyArgs},
 };
 

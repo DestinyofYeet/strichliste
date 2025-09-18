@@ -1,9 +1,11 @@
 use leptos::prelude::*;
 
+use crate::backend::core::Article;
+
 #[server]
 pub async fn create_article(name: String, cost: String) -> Result<(), ServerFnError> {
     use crate::backend::core::ServerState;
-    use crate::models::{Article, Money};
+    use crate::models::Money;
     use axum::http::StatusCode;
     use leptos_axum::redirect;
     use leptos_axum::ResponseOptions;

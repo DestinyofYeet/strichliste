@@ -1,4 +1,6 @@
-use crate::models::Money;
+use serde::{Deserialize, Serialize};
+
+use crate::{backend::core::Article, models::Money};
 
 use super::{ArticleSound, Barcode};
 
@@ -15,17 +17,6 @@ use {
     sqlx::Transaction,
     tracing::debug,
 };
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
-pub struct Article {
-    pub id: i64,
-    pub name: String,
-    pub cost: Money,
-    pub sounds: Vec<ArticleSound>,
-    pub barcodes: Vec<Barcode>,
-}
 
 impl Article {
     //TODO move this to the relevant component directly or to a constants file in frontend
