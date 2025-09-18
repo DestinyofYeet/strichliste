@@ -29,7 +29,7 @@ async fn main() {
     use strichliste_rs::app::*;
 
     use strichliste_rs::backend::database::DB;
-    use strichliste_rs::backend::{ServerState, Settings, State};
+    use strichliste_rs::backend::{core::ServerState, core::Settings, core::State};
 
     use tokio::sync::Mutex;
     use tracing::{error, Level};

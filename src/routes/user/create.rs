@@ -8,7 +8,7 @@ use {
 
 #[server]
 pub async fn create_user(username: String) -> Result<(), ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
 
     use axum::http::StatusCode;

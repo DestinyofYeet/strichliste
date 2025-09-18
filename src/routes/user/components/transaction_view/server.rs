@@ -13,7 +13,7 @@ use {
 
 #[server]
 pub async fn get_group_members(gid: i64) -> Result<Vec<String>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -51,7 +51,7 @@ pub async fn get_user_transactions(
     user_id: UserId,
     page_request_params: PageRequestParams,
 ) -> Result<Page<Transaction>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -77,7 +77,7 @@ pub async fn get_user_transactions(
 
 #[server]
 pub async fn undo_transaction(user_id: UserId, transaction_id: i64) -> Result<(), ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;

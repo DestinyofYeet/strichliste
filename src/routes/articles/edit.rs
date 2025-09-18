@@ -13,7 +13,7 @@ use crate::models::{Article, Barcode, BarcodeDiff};
 
 #[server]
 pub async fn get_article(article_id: i64) -> Result<Article, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -53,7 +53,7 @@ pub async fn update_article(
     cost: String,
     barcodes: Option<Vec<BarcodeDiff>>,
 ) -> Result<(), ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::redirect;

@@ -36,7 +36,7 @@ pub struct MoneyArgs {
 
 #[server]
 pub async fn get_user(id: UserId) -> Result<Option<User>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -118,7 +118,7 @@ pub async fn create_transaction(
     transaction_type: TransactionType,
 ) -> Result<Transaction, CreateTransactionError> {
     type Error = CreateTransactionError;
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
 
@@ -206,7 +206,7 @@ fn choose_random_item(vec: &[String]) -> Option<&String> {
 
 #[server]
 pub async fn get_item_sound_url(audio: AudioPlayback) -> Result<Vec<u8>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
 

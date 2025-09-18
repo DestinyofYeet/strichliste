@@ -1,6 +1,6 @@
 #[cfg(feature = "ssr")]
 use {
-    crate::backend::{db::DB, Settings},
+    crate::backend::{core::Settings, database::DB},
     std::sync::Arc,
     tokio::sync::Mutex,
 };

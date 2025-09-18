@@ -64,7 +64,7 @@ pub async fn split_cost(
     money: String,
     description: String,
 ) -> Result<(), SplitCostError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;

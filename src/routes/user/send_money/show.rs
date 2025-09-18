@@ -19,7 +19,7 @@ pub async fn send_money(
     to_user: String,
     amount: String,
 ) -> Result<(), ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
 
     use axum::http::StatusCode;
