@@ -52,6 +52,14 @@
           };
 
         treeFmtEval = inputs.treefmt-nix.lib.evalModule pkgs formattingConfig;
+        crane_pkg = pkgs.callPackage ./pkg_crane.nix {
+          inherit
+            name
+            version
+            inputs
+            toml
+            ;
+        };
       in
       {
         nixosModules = rec {
@@ -87,16 +95,12 @@
         };
 
         formatter = treeFmtEval.config.build.wrapper;
+
+        inherit (crane_pkg) packages;
+
+        checks = crane_pkg.checks // {
+          formatting = treeFmtEval.config.build.check self;
+        };
       }
-      // (pkgs.callPackage ./pkg_crane.nix {
-        inherit
-          name
-          version
-          inputs
-          toml
-          treeFmtEval
-          self
-          ;
-      })
     );
 }
