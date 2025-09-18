@@ -8,8 +8,8 @@ use super::{DatabaseId, Money};
 #[cfg(feature = "ssr")]
 use {
     super::TransactionDB,
-    crate::backend::db::{DBError, DB},
-    crate::backend::db::{DatabaseResponse, DatabaseType},
+    crate::backend::database::{DBError, DB},
+    crate::backend::database::{DatabaseResponse, DatabaseType},
     crate::models::GroupDB,
     sqlx::query,
     sqlx::query_as,

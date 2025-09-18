@@ -19,9 +19,9 @@ use super::{DatabaseId, GroupId, Money};
 #[cfg(feature = "ssr")]
 use {
     super::ArticleDB,
-    crate::backend::db::{DBError, DB},
-    crate::backend::db::{DatabaseResponse, DatabaseType},
-    crate::backend::db::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
+    crate::backend::database::{DBError, DB},
+    crate::backend::database::{DatabaseResponse, DatabaseType},
+    crate::backend::database::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
     crate::models::{Group, GroupDB},
     itertools::Itertools,
     sqlx::query,
@@ -118,7 +118,7 @@ where
 {
     type Error = DBError;
     fn try_into(self: (TransactionDB, &'a Vec<T>)) -> Result<Transaction, DBError> {
-        use crate::backend::db::DBGROUP_AUFLADUNG_ID;
+        use crate::backend::database::DBGROUP_AUFLADUNG_ID;
 
         let (
             TransactionDB {
@@ -155,7 +155,7 @@ where
             },
             is_undone,
             t_type: {
-                use crate::backend::db::DBGROUP_SNACKBAR_ID;
+                use crate::backend::database::DBGROUP_SNACKBAR_ID;
                 match (sender, receiver) {
                     (DBGROUP_AUFLADUNG_ID, _) => TransactionType::Deposit,
                     (_, DBGROUP_AUFLADUNG_ID) => TransactionType::Withdraw,
@@ -631,7 +631,7 @@ impl Transaction {
         let mut users_too_high = Vec::<String>::new();
 
         for (key, value) in deltas.iter() {
-            use crate::backend::db::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID};
+            use crate::backend::database::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID};
 
             if key.id.0 == DBUSER_AUFLADUNG_ID.0 || key.id.0 == DBUSER_SNACKBAR_ID.0 {
                 // don't do tracking on the system users

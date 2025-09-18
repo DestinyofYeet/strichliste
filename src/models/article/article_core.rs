@@ -5,8 +5,8 @@ use super::{ArticleSound, Barcode};
 #[cfg(feature = "ssr")]
 use {
     super::{BarcodeDB, BarcodeDiff},
-    crate::backend::db::{DBError, DB},
-    crate::backend::db::{DatabaseResponse, DatabaseType},
+    crate::backend::database::{DBError, DB},
+    crate::backend::database::{DatabaseResponse, DatabaseType},
     crate::models::{DatabaseId, UserId},
     chrono::{DateTime, Utc},
     sqlx::query,
@@ -539,7 +539,7 @@ impl ArticleDB {
     where
         for<'a> &'a mut T: Executor<'a, Database = DatabaseType>,
     {
-        use crate::backend::db::DBGROUP_SNACKBAR_ID;
+        use crate::backend::database::DBGROUP_SNACKBAR_ID;
 
         let result = query!(
             "

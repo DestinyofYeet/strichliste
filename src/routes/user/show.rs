@@ -7,7 +7,7 @@ use thiserror::Error;
 use tracing::error;
 
 #[cfg(feature = "ssr")]
-use crate::backend::db::DBError;
+use crate::backend::database::DBError;
 use crate::{
     models::{play_sound, AudioPlayback, Money, Transaction, TransactionType, User, UserId},
     routes::user::components::{buy_article::BuyArticle, scan_input::invisible_scan_input},
@@ -15,8 +15,8 @@ use crate::{
 
 #[cfg(feature = "ssr")]
 use {
-    crate::backend::db::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
-    crate::backend::db::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID},
+    crate::backend::database::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
+    crate::backend::database::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID},
     crate::models::Group,
     crate::routes::articles::get_article,
     rand::seq::IndexedRandom,

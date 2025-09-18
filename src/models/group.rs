@@ -2,7 +2,7 @@ use itertools::Itertools;
 use sqlx::{query, query_as, Executor};
 
 use crate::{
-    backend::db::{DBError, DatabaseResponse, DatabaseType},
+    backend::database::{DBError, DatabaseResponse, DatabaseType},
     models::{DatabaseId, UserDB},
 };
 

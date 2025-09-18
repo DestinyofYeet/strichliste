@@ -9,7 +9,7 @@ use crate::{
 
 #[cfg(feature = "ssr")]
 use {
-    crate::{backend::db::DBGROUP_SNACKBAR_ID, models::Group, routes::articles::get_article},
+    crate::{backend::database::DBGROUP_SNACKBAR_ID, models::Group, routes::articles::get_article},
     tracing::error,
 };
 

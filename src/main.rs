@@ -28,7 +28,8 @@ async fn main() {
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use strichliste_rs::app::*;
 
-    use strichliste_rs::backend::{db, ServerState, Settings, State};
+    use strichliste_rs::backend::database::DB;
+    use strichliste_rs::backend::{ServerState, Settings, State};
 
     use tokio::sync::Mutex;
     use tracing::{error, Level};
@@ -71,7 +72,7 @@ async fn main() {
 
     let path = args.data_dir.join("db.sqlite");
 
-    let db = match db::DB::new(path.to_str().unwrap()).await {
+    let db = match DB::new(path.to_str().unwrap()).await {
         Ok(db) => db,
         Err(err) => {
             error!("Failed to create database: {},", err.to_string());
