@@ -1,3 +1,7 @@
+pub mod behaviour;
+pub mod misc;
+pub mod model;
+
 use core::fmt;
 use std::str::FromStr;
 
