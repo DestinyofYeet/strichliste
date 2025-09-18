@@ -15,7 +15,6 @@ let
       ./public
       ./migrations
       ./.sqlx
-      ./style
     ];
   };
 
