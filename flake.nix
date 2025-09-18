@@ -100,6 +100,20 @@
 
         checks = crane_pkg.checks // {
           formatting = treeFmtEval.config.build.check self;
+          directoryStructureReadMe = pkgs.stdenv.mkDerivation {
+            name = "directoryStructureReadMe";
+            src = ./.;
+            nativeBuildInputs = with pkgs; [
+              python3
+              gawk
+              coreutils
+            ];
+            buildPhase = ''
+              patchShebangs .
+              ./scripts/diff-file-structure.sh
+              touch "$out"
+            '';
+          };
         };
       }
     );
