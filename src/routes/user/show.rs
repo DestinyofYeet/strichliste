@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use leptos::{prelude::*, server_fn::error::ServerFnErrorErr, task::spawn_local};
+use leptos_router::hooks::use_params_map;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::error;
@@ -10,7 +11,7 @@ use crate::backend::db::DBError;
 use crate::{
     models::{play_sound, AudioPlayback, Money, Transaction, TransactionType, User, UserId},
     routes::{
-        state::{get_user, set_error},
+        state::{get_user, get_user_id, set_error},
         user::components::{buy_article::BuyArticle, scan_input::invisible_scan_input},
     },
 };
@@ -272,14 +273,10 @@ pub async fn get_item_sound_url(audio: AudioPlayback) -> Result<Vec<u8>, ServerF
 
 #[component]
 pub fn ShowUser() -> impl IntoView {
-    let (user_resource, set_user_resource) = signal(None);
-    Effect::new(move || {
-        if let Some(u) = get_user().get() {
-            set_user_resource.set(Some(u));
-        }
-    });
-
     let error_signal = RwSignal::new(String::new());
+    let user_id = get_user_id(use_params_map());
+
+    let user_resource = get_user(user_id);
 
     view! {
         {move || {

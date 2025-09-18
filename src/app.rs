@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
@@ -34,7 +36,11 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     use reactive_stores::Store;
-    provide_context(Store::new(FrontendStore::default()));
+    let store = FrontendStore {
+        cached_sounds: HashMap::new(),
+        error: RwSignal::default(),
+    };
+    provide_context(Store::new(store));
     let audio_ref = NodeRef::<leptos::html::Audio>::new();
     provide_context(audio_ref);
 

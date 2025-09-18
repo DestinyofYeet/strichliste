@@ -11,17 +11,16 @@ pub fn ErrorDisplay() -> impl IntoView {
     let store = expect_context::<Store<FrontendStore>>();
     let content = RwSignal::new("".to_string());
     let open = RwSignal::new(false);
-    Effect::new(move |_| match store.error().get().get() {
-        Some(e) => {
-            open.set(true);
-            content.set(e)
-        }
-        None => {
-            open.set(false);
-        }
-    });
-
     view! {
+        {move || {
+            match store.error().get().get() {
+                Some(e) => {
+                    open.set(true);
+                    content.set(e);
+                }
+                None => open.set(false),
+            }
+        }}
         <ConfigProvider>
             <Dialog open>
                 <DialogSurface>

@@ -4,10 +4,10 @@ use thiserror::Error;
 
 use leptos::{
     leptos_dom::logging::console_log,
-    prelude::{expect_context, Get, Memo, RwSignal, ServerFnError, Set},
+    prelude::{expect_context, Get, Memo, Read, RwSignal, ServerFnError, Set},
     server::Resource,
 };
-use leptos_router::hooks::use_params_map;
+use leptos_router::params::ParamsMap;
 use reactive_stores::{Store, StoreField};
 
 use crate::{
@@ -15,7 +15,7 @@ use crate::{
     routes::user::load_user,
 };
 
-#[derive(Clone, Debug, Default, Store)]
+#[derive(Clone, Debug, Store)]
 pub struct FrontendStore {
     // #[store(key: i64 = |user| user.id.unwrap())]
     pub cached_sounds: HashMap<AudioPlayback, String>,
@@ -44,25 +44,33 @@ impl From<ServerFnError> for GetUserError {
 }
 
 //this will be moved to either routes or shared
-pub fn get_user_id() -> Memo<Result<UserId, GetUserError>> {
-    let params = use_params_map();
-    Memo::new(move |_| -> Result<UserId, GetUserError> {
-        let as_str = params.get().get("id").ok_or(GetUserError::NoUserInURL)?;
-        as_str
-            .parse::<i64>()
-            .map(UserId)
-            .map_err(|e| GetUserError::InvalidUserInURL(e.to_string()))
+pub fn get_user_id(params: Memo<ParamsMap>) -> Memo<Result<UserId, GetUserError>> {
+    console_log(&format!("re-rendering get_user_id(): {:#?}", params));
+    Memo::new(move |_| {
+        match params.read().get("id").map(|id| {
+            id.parse::<i64>()
+                .map(UserId)
+                .map_err(|e| GetUserError::InvalidUserInURL(e.to_string()))
+        }) {
+            Some(value) => value,
+            None => Err(GetUserError::NoUserInURL),
+        }
     })
 }
 
-pub fn get_user() -> Resource<Result<User, GetUserError>> {
+pub fn get_user(
+    user_id: Memo<Result<UserId, GetUserError>>,
+) -> Resource<Result<User, GetUserError>> {
     Resource::new(
-        move || get_user_id().get(),
-        async |user_id| match user_id {
-            Ok(user_id) => Ok(load_user(user_id)
-                .await?
-                .ok_or(GetUserError::UserNotPresentError(user_id))?),
-            Err(e) => Err(e),
+        move || user_id.get(),
+        async |user_id| {
+            console_log(&format!("executing resource. user_id: {:#?}", user_id));
+            match user_id {
+                Ok(user_id) => Ok(load_user(user_id)
+                    .await?
+                    .ok_or(GetUserError::UserNotPresentError(user_id))?),
+                Err(e) => Err(e),
+            }
         },
     )
 }

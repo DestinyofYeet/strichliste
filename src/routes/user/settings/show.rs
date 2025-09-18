@@ -1,8 +1,9 @@
 use leptos::prelude::*;
+use leptos_router::hooks::use_params_map;
 
 use crate::{
     models::UserId,
-    routes::state::{get_user, set_error},
+    routes::state::{get_user, get_user_id},
 };
 
 #[cfg(feature = "ssr")]
@@ -122,20 +123,14 @@ pub async fn update_user(
 
 #[component]
 pub fn Show() -> impl IntoView {
-    let (user_resource, set_user_resource) = signal(None);
-    Effect::new(move || {
-        if let Some(u) = get_user().get() {
-            set_user_resource.set(Some(u));
-        }
-    });
-
     let update_action = ServerAction::<UpdateUser>::new();
     view! {
         <Suspense fallback=move || {
             view! { <p class="text-white text-center pt-5">"Loading User..."</p> }
         }>
             {move || {
-                let user = match user_resource.get() {
+                let user_id = get_user_id(use_params_map());
+                let user = match get_user(user_id).get() {
                     Some(user) => user,
                     None => {
                         return view! { <p class="text-red-500">"Failed to fetch user"</p> }
