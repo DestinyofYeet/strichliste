@@ -2,7 +2,8 @@ pub mod behaviour;
 pub mod misc;
 pub mod model;
 
-use core::fmt;
+pub use model::*;
+
 use std::str::FromStr;
 
 use sqlx::{
@@ -15,26 +16,6 @@ use tracing::{debug, info};
 
 use crate::models::{GroupDB, GroupId, UserId};
 
-#[derive(Debug)]
-pub struct DBError(String);
-
-impl DBError {
-    pub fn new(error: impl ToString) -> Self {
-        DBError(error.to_string())
-    }
-}
-
-impl fmt::Display for DBError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<sqlx::Error> for DBError {
-    fn from(value: sqlx::Error) -> Self {
-        DBError::new(value)
-    }
-}
 
 pub type DatabaseResponse<T> = Result<T, DBError>;
 
