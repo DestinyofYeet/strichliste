@@ -2,8 +2,6 @@
 use serde::{Deserialize, Serialize};
 
 use crate::backend::core::Article;
-#[cfg(feature = "ssr")]
-use crate::models::Money;
 
 #[cfg(feature = "ssr")]
 use super::{ArticleSound, Barcode};
@@ -28,17 +26,6 @@ impl Article {
 
 #[cfg(feature = "ssr")]
 impl Article {
-    pub async fn set_cost<T>(&mut self, conn: &mut T, cost: Money) -> DatabaseResponse<()>
-    where
-        for<'a> &'a mut T: Executor<'a, Database = DatabaseType>,
-    {
-        ArticleDB::set_price(conn, self.id, cost.value).await?;
-
-        self.cost = cost;
-
-        Ok(())
-    }
-
     pub async fn set_barcodes<T>(
         &mut self,
         conn: &mut T,
