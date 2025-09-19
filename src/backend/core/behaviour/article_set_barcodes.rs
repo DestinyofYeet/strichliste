@@ -1,16 +1,15 @@
-#[cfg(feature = "ssr")]
+#![cfg(feature = "ssr")]
 use sqlx::Executor;
 
-#[cfg(feature = "ssr")]
+use crate::{backend::database::ArticleDB, models::Barcode};
 use crate::{
     backend::{
         core::Article,
         database::{DatabaseResponse, DatabaseType},
     },
-    models::{ArticleDB, BarcodeDiff},
+    models::BarcodeDiff,
 };
 
-#[cfg(feature = "ssr")]
 impl Article {
     pub async fn set_barcodes<T>(
         &mut self,
@@ -20,8 +19,6 @@ impl Article {
     where
         for<'a> &'a mut T: Executor<'a, Database = DatabaseType>,
     {
-        use crate::models::Barcode;
-
         for diff in barcode_diff.into_iter() {
             match diff {
                 BarcodeDiff::Removed(barcode) => {

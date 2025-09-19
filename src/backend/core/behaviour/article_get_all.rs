@@ -5,9 +5,9 @@ use tracing::debug;
 use crate::{
     backend::{
         core::Article,
-        database::{DatabaseResponse, DB},
+        database::{ArticleDB, DatabaseResponse, DB},
     },
-    models::{ArticleDB, Barcode},
+    models::Barcode,
 };
 impl Article {
     pub async fn get_all(db: &DB, limit: Option<i64>) -> DatabaseResponse<Vec<Self>> {

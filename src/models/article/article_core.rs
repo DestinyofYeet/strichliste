@@ -1,7 +1,6 @@
-#[cfg(feature = "ssr")]
-use serde::{Deserialize, Serialize};
-
 use crate::backend::core::Article;
+#[cfg(feature = "ssr")]
+use crate::backend::database::ArticleDB;
 
 #[cfg(feature = "ssr")]
 use super::ArticleSound;
@@ -22,13 +21,6 @@ use {
 impl Article {
     //TODO move this to the relevant component directly or to a constants file in frontend
     pub const DEFAULT_ARTICLE_AMOUNT: usize = 9;
-}
-
-#[cfg(feature = "ssr")]
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, sqlx::Type, sqlx::FromRow)]
-pub struct ArticleDB {
-    pub id: DatabaseId,
-    pub name: String,
 }
 
 #[cfg(feature = "ssr")]

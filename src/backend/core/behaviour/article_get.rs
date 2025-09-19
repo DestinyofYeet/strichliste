@@ -3,9 +3,9 @@
 use crate::{
     backend::{
         core::Article,
-        database::{DatabaseResponse, DB},
+        database::{ArticleDB, DatabaseResponse, DB},
     },
-    models::{ArticleDB, Barcode},
+    models::Barcode,
 };
 impl Article {
     pub async fn get(db: &DB, id: i64) -> DatabaseResponse<Option<Self>> {

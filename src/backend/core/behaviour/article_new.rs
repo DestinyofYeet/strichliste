@@ -3,9 +3,9 @@
 use crate::{
     backend::{
         core::Article,
-        database::{DBError, DatabaseResponse, DB},
+        database::{ArticleDB, DBError, DatabaseResponse, DB},
     },
-    models::{ArticleDB, Money},
+    models::Money,
 };
 
 impl Article {

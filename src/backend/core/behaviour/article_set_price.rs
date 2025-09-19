@@ -5,9 +5,9 @@ use sqlx::Executor;
 use crate::{
     backend::{
         core::Article,
-        database::{DatabaseResponse, DatabaseType},
+        database::{ArticleDB, DatabaseResponse, DatabaseType},
     },
-    models::{ArticleDB, Money},
+    models::Money,
 };
 
 impl Article {

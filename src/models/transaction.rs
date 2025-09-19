@@ -6,7 +6,7 @@ use leptos::prelude::RwSignal;
 
 #[cfg(feature = "ssr")]
 use crate::{
-    backend::core::Settings,
+    backend::{core::Settings, database::ArticleDB},
     models::{Page, PageRequestParams, User},
     routes::user::CreateTransactionError,
 };
@@ -18,7 +18,6 @@ use super::{DatabaseId, GroupId, Money};
 
 #[cfg(feature = "ssr")]
 use {
-    super::ArticleDB,
     crate::backend::database::{DBError, DB},
     crate::backend::database::{DatabaseResponse, DatabaseType},
     crate::backend::database::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},

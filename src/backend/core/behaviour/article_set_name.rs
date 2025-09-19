@@ -2,12 +2,9 @@
 
 use sqlx::Executor;
 
-use crate::{
-    backend::{
-        core::Article,
-        database::{DatabaseResponse, DatabaseType},
-    },
-    models::ArticleDB,
+use crate::backend::{
+    core::Article,
+    database::{ArticleDB, DatabaseResponse, DatabaseType},
 };
 impl Article {
     pub async fn set_name<T>(&mut self, conn: &mut T, name: String) -> DatabaseResponse<()>
