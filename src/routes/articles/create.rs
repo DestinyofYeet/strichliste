@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+#[cfg(feature = "ssr")]
 use crate::backend::core::Article;
 
 #[server]

@@ -1,7 +1,11 @@
+#[cfg(feature = "ssr")]
 use serde::{Deserialize, Serialize};
 
-use crate::{backend::core::Article, models::Money};
+use crate::backend::core::Article;
+#[cfg(feature = "ssr")]
+use crate::models::Money;
 
+#[cfg(feature = "ssr")]
 use super::{ArticleSound, Barcode};
 
 #[cfg(feature = "ssr")]
@@ -25,18 +29,6 @@ impl Article {
 
 #[cfg(feature = "ssr")]
 impl Article {
-    pub async fn new(db: &DB, name: String, cost: Money) -> DatabaseResponse<Self> {
-        let mut transaction = db.get_conn_transaction().await?;
-
-        let id = ArticleDB::create(&mut transaction, name, cost.value).await?;
-
-        transaction.commit().await.map_err(DBError::new)?;
-
-        let article = Article::get(db, id).await?;
-
-        Ok(article.expect("Newly created article should exist!"))
-    }
-
     pub async fn get_all(db: &DB, limit: Option<i64>) -> DatabaseResponse<Vec<Self>> {
         let mut conn = db.get_conn().await?;
 
