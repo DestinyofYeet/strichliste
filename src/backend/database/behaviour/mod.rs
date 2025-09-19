@@ -1,3 +1,4 @@
+pub mod article_add_barcode;
 pub mod article_create;
 pub mod article_get_all;
 pub mod article_get_barcodes;
