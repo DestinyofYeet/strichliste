@@ -1,12 +1,6 @@
-use crate::backend::core::Barcode;
-use serde::{Deserialize, Serialize};
+#![cfg(feature = "ssr")]
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(feature = "ssr", derive(sqlx::Type, sqlx::FromRow))]
-pub struct BarcodeDB {
-    pub article_id: i64,
-    pub barcode_content: String,
-}
+use crate::backend::{core::Barcode, database::BarcodeDB};
 
 impl From<BarcodeDB> for Barcode {
     fn from(value: BarcodeDB) -> Self {
