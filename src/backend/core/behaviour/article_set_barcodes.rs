@@ -1,13 +1,11 @@
 #![cfg(feature = "ssr")]
 use sqlx::Executor;
 
-use crate::{backend::database::ArticleDB, models::Barcode};
-use crate::{
-    backend::{
-        core::Article,
-        database::{DatabaseResponse, DatabaseType},
-    },
-    models::BarcodeDiff,
+use crate::backend::core::{Barcode, BarcodeDiff};
+use crate::backend::database::ArticleDB;
+use crate::backend::{
+    core::Article,
+    database::{DatabaseResponse, DatabaseType},
 };
 
 impl Article {

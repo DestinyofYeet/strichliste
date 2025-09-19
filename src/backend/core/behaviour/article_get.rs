@@ -1,11 +1,8 @@
 #![cfg(feature = "ssr")]
 
-use crate::{
-    backend::{
-        core::Article,
-        database::{ArticleDB, DatabaseResponse, DB},
-    },
-    models::Barcode,
+use crate::backend::{
+    core::{Article, Barcode},
+    database::{ArticleDB, DatabaseResponse, DB},
 };
 impl Article {
     pub async fn get(db: &DB, id: i64) -> DatabaseResponse<Option<Self>> {

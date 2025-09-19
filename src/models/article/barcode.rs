@@ -1,7 +1,5 @@
+use crate::backend::core::Barcode;
 use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
-pub struct Barcode(pub String);
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "ssr", derive(sqlx::Type, sqlx::FromRow))]
@@ -14,10 +12,4 @@ impl From<BarcodeDB> for Barcode {
     fn from(value: BarcodeDB) -> Self {
         Self(value.barcode_content)
     }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
-pub enum BarcodeDiff {
-    Removed(String),
-    Added(String),
 }

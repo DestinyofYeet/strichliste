@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{ArticleSound, Barcode, Money};
+use crate::{
+    backend::core::Barcode,
+    models::{ArticleSound, Money},
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct Article {
