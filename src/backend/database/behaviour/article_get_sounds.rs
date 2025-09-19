@@ -4,7 +4,8 @@ use sqlx::{query, query_as, Executor};
 
 use crate::{
     backend::database::{ArticleDB, DBError, DatabaseResponse, DatabaseType},
-    models::{ArticleSound, DatabaseId},
+    model::ArticleSound,
+    models::DatabaseId,
 };
 
 impl ArticleDB {

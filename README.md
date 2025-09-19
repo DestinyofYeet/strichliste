@@ -102,6 +102,10 @@ This step is needed in order for the build instructions to work. This step shoul
     > conversion between frontend types and backend types \
     > prefer implementing the [From](https://doc.rust-lang.org/std/convert/trait.From.html) \
     > file name: `{StructNameA}_from_{StructNameB}.rs`
+  - model
+    > Models shared by backend and frontend
+    > It is allowed to implement functions on these in both frontend and backend
+    > Can be [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object)
   - frontend
     > code run on the client / at hydration
     - style

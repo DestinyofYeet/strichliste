@@ -1,4 +1,3 @@
-pub use article::*;
 pub use audio::*;
 #[cfg(feature = "ssr")]
 pub use group::*;
@@ -7,7 +6,6 @@ pub use page::*;
 pub use transaction::*;
 pub use user::*;
 
-mod article;
 #[cfg(feature = "ssr")]
 mod group;
 mod money;
