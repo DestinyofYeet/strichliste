@@ -4,12 +4,10 @@ use crate::backend::database::ArticleDB;
 
 #[cfg(feature = "ssr")]
 use {
-    super::BarcodeDB,
     crate::backend::database::DBError,
     crate::backend::database::{DatabaseResponse, DatabaseType},
     crate::models::{DatabaseId, UserId},
     sqlx::query,
-    sqlx::query_as,
     sqlx::Executor,
 };
 
@@ -20,26 +18,6 @@ impl Article {
 
 #[cfg(feature = "ssr")]
 impl ArticleDB {
-    pub async fn get_barcodes<T>(
-        conn: &mut T,
-        article_id: DatabaseId,
-    ) -> DatabaseResponse<Vec<BarcodeDB>>
-    where
-        for<'a> &'a mut T: Executor<'a, Database = DatabaseType>,
-    {
-        query_as!(
-            BarcodeDB,
-            "
-                select * from ArticleBarcodes
-                where article_id = ?
-            ",
-            article_id
-        )
-        .fetch_all(&mut *conn)
-        .await
-        .map_err(DBError::new)
-    }
-
     pub async fn set_name<T>(
         conn: &mut T,
         article_id: DatabaseId,
