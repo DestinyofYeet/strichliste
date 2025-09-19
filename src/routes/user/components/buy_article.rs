@@ -163,7 +163,7 @@ pub fn BuyArticle(args: Rc<MoneyArgs>) -> impl IntoView {
                                     Ok(value) => {
                                         value
                                             .into_iter()
-                                            .take(Article::DEFAULT_ARTICLE_AMOUNT)
+                                            .take(9)
                                             .collect::<Vec<Article>>()
                                     }
                                     Err(e) => {

@@ -1,4 +1,3 @@
-mod article_core;
 mod article_cost;
 mod article_sounds;
 mod barcode;
