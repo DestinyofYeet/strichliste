@@ -3,19 +3,20 @@ use std::rc::Rc;
 use leptos::{ev, html, leptos_dom::logging::console_log, prelude::*, task::spawn_local};
 
 use crate::{
-    models::{play_sound, Article, Money, Transaction, UserId},
+    backend::core::Article,
+    models::{play_sound, Money, Transaction, UserId},
     routes::{articles::get_all_articles, user::MoneyArgs},
 };
 
 #[cfg(feature = "ssr")]
 use {
-    crate::{backend::db::DBGROUP_SNACKBAR_ID, models::Group, routes::articles::get_article},
+    crate::{backend::database::DBGROUP_SNACKBAR_ID, models::Group, routes::articles::get_article},
     tracing::error,
 };
 
 #[server]
 pub async fn get_articles_per_user(user_id: UserId) -> Result<Vec<Article>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -40,7 +41,7 @@ pub async fn buy_article_by_id(
     user_id: UserId,
     article_id: i64,
 ) -> Result<Transaction, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -162,7 +163,7 @@ pub fn BuyArticle(args: Rc<MoneyArgs>) -> impl IntoView {
                                     Ok(value) => {
                                         value
                                             .into_iter()
-                                            .take(Article::DEFAULT_ARTICLE_AMOUNT)
+                                            .take(9)
                                             .collect::<Vec<Article>>()
                                     }
                                     Err(e) => {

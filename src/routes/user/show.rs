@@ -7,7 +7,7 @@ use thiserror::Error;
 use tracing::error;
 
 #[cfg(feature = "ssr")]
-use crate::backend::db::DBError;
+use crate::backend::database::DBError;
 use crate::{
     models::{play_sound, AudioPlayback, Money, Transaction, TransactionType, User, UserId},
     routes::user::components::{buy_article::BuyArticle, scan_input::invisible_scan_input},
@@ -15,8 +15,8 @@ use crate::{
 
 #[cfg(feature = "ssr")]
 use {
-    crate::backend::db::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
-    crate::backend::db::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID},
+    crate::backend::database::{DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID},
+    crate::backend::database::{DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID},
     crate::models::Group,
     crate::routes::articles::get_article,
     rand::seq::IndexedRandom,
@@ -36,7 +36,7 @@ pub struct MoneyArgs {
 
 #[server]
 pub async fn get_user(id: UserId) -> Result<Option<User>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -118,7 +118,7 @@ pub async fn create_transaction(
     transaction_type: TransactionType,
 ) -> Result<Transaction, CreateTransactionError> {
     type Error = CreateTransactionError;
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
 
@@ -206,7 +206,7 @@ fn choose_random_item(vec: &[String]) -> Option<&String> {
 
 #[server]
 pub async fn get_item_sound_url(audio: AudioPlayback) -> Result<Vec<u8>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
 

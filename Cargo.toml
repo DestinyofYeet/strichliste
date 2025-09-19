@@ -108,8 +108,8 @@ lib-default-features = false
 #
 # Optional. Defaults to "release".
 lib-profile-release = "wasm-release"
-tailwind-input-file = "style/input.css"
-tailwind-config-file = "tailwind.config.js"
+tailwind-input-file = "src/frontend/style/input.css"
+tailwind-config-file = "src/frontend/style/tailwind.config.js"
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]

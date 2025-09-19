@@ -1,3 +1,5 @@
+#![cfg(feature = "ssr")]
+
 use config::ConfigError;
 use serde::Deserialize;
 use std::{collections::HashMap, path::PathBuf};

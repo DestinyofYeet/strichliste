@@ -1,45 +1,16 @@
-use core::fmt;
 use std::str::FromStr;
 
 use sqlx::{
-    pool::PoolConnection,
-    query,
-    sqlite::{SqliteConnectOptions, SqlitePool},
-    Sqlite, Transaction,
+    pool::PoolConnection, query, sqlite::SqliteConnectOptions, Sqlite, SqlitePool, Transaction,
 };
 use tracing::{debug, info};
 
-use crate::models::{GroupDB, GroupId, UserId};
-
-#[derive(Debug)]
-pub struct DBError(String);
-
-impl DBError {
-    pub fn new(error: impl ToString) -> Self {
-        DBError(error.to_string())
-    }
-}
-
-impl fmt::Display for DBError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<sqlx::Error> for DBError {
-    fn from(value: sqlx::Error) -> Self {
-        DBError::new(value)
-    }
-}
-
-pub type DatabaseResponse<T> = Result<T, DBError>;
-
-pub type DatabaseType = Sqlite;
-
-pub const DBGROUP_SNACKBAR_ID: GroupId = GroupId(0);
-pub const DBGROUP_AUFLADUNG_ID: GroupId = GroupId(1);
-pub const DBUSER_SNACKBAR_ID: UserId = UserId(0);
-pub const DBUSER_AUFLADUNG_ID: UserId = UserId(1);
+use crate::{
+    backend::database::{
+        DBError, DBGROUP_AUFLADUNG_ID, DBGROUP_SNACKBAR_ID, DBUSER_AUFLADUNG_ID, DBUSER_SNACKBAR_ID,
+    },
+    models::GroupDB,
+};
 
 pub struct DB {
     pool: SqlitePool,
@@ -147,7 +118,6 @@ impl DB {
         debug!("Linked group to user: DBUSER_AUFLADUNG");
 
         // no need ?
-        // GroupDB::_create(&mut *transaction, DBUSER_AUFLADUNG_ID).await?;
 
         transaction.commit().await.map_err(From::from)
     }

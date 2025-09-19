@@ -3,8 +3,6 @@
   pkgs,
   toml,
   inputs,
-  treeFmtEval,
-  self,
   ...
 }:
 let
@@ -17,7 +15,6 @@ let
       ./public
       ./migrations
       ./.sqlx
-      ./style
     ];
   };
 
@@ -136,6 +133,5 @@ in
   packages.default = package;
   checks = {
     inherit clippyFrontend clippyServer;
-    formatting = treeFmtEval.config.build.check self;
   };
 }

@@ -52,6 +52,14 @@
           };
 
         treeFmtEval = inputs.treefmt-nix.lib.evalModule pkgs formattingConfig;
+        crane_pkg = pkgs.callPackage ./pkg_crane.nix {
+          inherit
+            name
+            version
+            inputs
+            toml
+            ;
+        };
       in
       {
         nixosModules = rec {
@@ -87,16 +95,26 @@
         };
 
         formatter = treeFmtEval.config.build.wrapper;
+
+        inherit (crane_pkg) packages;
+
+        checks = crane_pkg.checks // {
+          formatting = treeFmtEval.config.build.check self;
+          directoryStructureReadMe = pkgs.stdenv.mkDerivation {
+            name = "directoryStructureReadMe";
+            src = ./.;
+            nativeBuildInputs = with pkgs; [
+              python3
+              gawk
+              coreutils
+            ];
+            buildPhase = ''
+              patchShebangs .
+              ./scripts/diff-file-structure.sh
+              touch "$out"
+            '';
+          };
+        };
       }
-      // (pkgs.callPackage ./pkg_crane.nix {
-        inherit
-          name
-          version
-          inputs
-          toml
-          treeFmtEval
-          self
-          ;
-      })
     );
 }

@@ -7,7 +7,7 @@ use crate::models::{Money, User};
 
 #[server]
 pub async fn get_all_users() -> Result<Vec<User>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -29,7 +29,7 @@ pub async fn get_all_users() -> Result<Vec<User>, ServerFnError> {
 
 #[server]
 pub async fn get_user_by_barcode(barcode_string: String) -> Result<Option<User>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;

@@ -2,11 +2,11 @@ use leptos::prelude::*;
 #[cfg(feature = "ssr")]
 use tracing::error;
 
-use crate::models::Article;
+use crate::backend::core::Article;
 
 #[server]
 pub async fn get_article_by_barcode(barcode: String) -> Result<Option<Article>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
@@ -30,7 +30,7 @@ pub async fn get_article_by_barcode(barcode: String) -> Result<Option<Article>, 
 
 #[server]
 pub async fn get_all_articles(limit: Option<i64>) -> Result<Vec<Article>, ServerFnError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;

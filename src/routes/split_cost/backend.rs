@@ -6,7 +6,7 @@ use crate::routes::user::CreateTransactionError;
 
 #[cfg(feature = "ssr")]
 use {
-    crate::backend::db::DBError,
+    crate::backend::database::DBError,
     crate::models::{Group, GroupId, Money, Transaction, User, UserId},
     leptos_axum::redirect,
     tracing::error,
@@ -64,7 +64,7 @@ pub async fn split_cost(
     money: String,
     description: String,
 ) -> Result<(), SplitCostError> {
-    use crate::backend::ServerState;
+    use crate::backend::core::ServerState;
     let state: ServerState = expect_context();
     use axum::http::StatusCode;
     use leptos_axum::ResponseOptions;
