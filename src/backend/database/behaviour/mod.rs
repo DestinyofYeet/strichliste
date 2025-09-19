@@ -2,6 +2,7 @@ pub mod article_add_barcode;
 pub mod article_create;
 pub mod article_get_all;
 pub mod article_get_article_id_by_barcode;
+pub mod article_get_articles_for_users;
 pub mod article_get_barcodes;
 pub mod article_get_effective_cost;
 pub mod article_get_latest_cost;
