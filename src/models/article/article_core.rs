@@ -21,25 +21,6 @@ impl Article {
 
 #[cfg(feature = "ssr")]
 impl ArticleDB {
-    pub async fn get_latest_cost<T>(conn: &mut T, article_id: DatabaseId) -> DatabaseResponse<i64>
-    where
-        for<'a> &'a mut T: Executor<'a, Database = DatabaseType>,
-    {
-        let result = query!(
-            "
-                select cost from ArticleCostMap
-                where article_id = ?
-                order by effective_since desc
-            ",
-            article_id
-        )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(DBError::new)?;
-
-        Ok(result.cost)
-    }
-
     pub async fn get_effective_cost<T>(
         conn: &mut T,
         article_id: DatabaseId,
